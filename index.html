@@ -194,17 +194,24 @@
                 }, 500);
             } else {
                 try {
-                    const response = await fetch(GAS_API_URL + "?action=get");
-                    const result = await response.json();
-                    if (result.status === 'success') {
-                        photosData = result.data;
-                        renderGallery();
-                    } else {
-                        showToast("讀取資料失敗", "error");
+                    const response = await fetch(GAS_API_URL + "?action=get", { redirect: "follow" });
+                    const textResult = await response.text();
+                    
+                    try {
+                        const result = JSON.parse(textResult);
+                        if (result.status === 'success') {
+                            photosData = result.data || [];
+                            renderGallery();
+                        } else {
+                            showToast("讀取資料失敗: " + (result.message || ""), "error");
+                        }
+                    } catch (e) {
+                        console.error("解析 JSON 失敗，收到的內容:", textResult);
+                        showToast("API 格式錯誤 (請確認部署權限為所有人)", "error");
                     }
                 } catch (error) {
                     console.error("Error fetching data:", error);
-                    showToast("網路連線錯誤", "error");
+                    showToast("網路連線錯誤或 CORS 阻擋", "error");
                 } finally {
                     showLoading(false);
                 }
@@ -389,15 +396,27 @@
                 try {
                     const response = await fetch(GAS_API_URL, {
                         method: 'POST',
+                        redirect: 'follow',
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        },
                         body: JSON.stringify({ action: action, data: payload })
                     });
-                    const result = await response.json();
-                    if (result.status === 'success') {
-                        showToast(id ? "更新成功" : "新增成功", "success");
-                        fetchData(); // 重新拉取資料
-                    } else {
-                        showToast(result.message || "操作失敗", "error");
-                        showLoading(false);
+                    
+                    const textResult = await response.text();
+                    try {
+                        const result = JSON.parse(textResult);
+                        if (result.status === 'success') {
+                            showToast(id ? "更新成功" : "新增成功", "success");
+                            fetchData(); // 重新拉取資料
+                        } else {
+                            showToast(result.message || "操作失敗", "error");
+                            showLoading(false);
+                        }
+                    } catch(e) {
+                         console.error("解析 JSON 失敗，收到的內容:", textResult);
+                         showToast("API 回傳格式錯誤 (請確認部署權限)", "error");
+                         showLoading(false);
                     }
                 } catch (error) {
                     console.error("Save error:", error);
@@ -428,15 +447,27 @@
                 try {
                     const response = await fetch(GAS_API_URL, {
                         method: 'POST',
+                        redirect: 'follow',
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        },
                         body: JSON.stringify({ action: 'delete', id: id })
                     });
-                    const result = await response.json();
-                    if (result.status === 'success') {
-                        showToast("刪除成功", "success");
-                        fetchData();
-                    } else {
-                        showToast(result.message || "刪除失敗", "error");
-                        showLoading(false);
+                    
+                    const textResult = await response.text();
+                    try {
+                        const result = JSON.parse(textResult);
+                        if (result.status === 'success') {
+                            showToast("刪除成功", "success");
+                            fetchData();
+                        } else {
+                            showToast(result.message || "刪除失敗", "error");
+                            showLoading(false);
+                        }
+                    } catch (e) {
+                         console.error("解析 JSON 失敗，收到的內容:", textResult);
+                         showToast("API 回傳格式錯誤", "error");
+                         showLoading(false);
                     }
                 } catch (error) {
                     console.error("Delete error:", error);
