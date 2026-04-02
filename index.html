@@ -165,7 +165,10 @@
          * 部署時，請將 GAS_API_URL 替換為您的 Google Apps Script 發布網址，並將 MOCK_MODE 設為 false。
          */
         const MOCK_MODE = false; 
-        const GAS_API_URL = "https://script.google.com/a/macros/dns.chanes.tc.edu.tw/s/AKfycbwpLbK_HQWkOw6WQ4TOfJtz9wQC0Asd1U5e68TYOor-EhrdT7TO7QI9c13x5M3aNmyeDA/exec"; 
+        
+        // 【修正點 1】已將您的網址中 /a/macros/dns.chanes.tc.edu.tw/ 移除，改為標準共用格式
+        // 這樣可以避免教育帳號的強制登入跳轉導致 CORS 錯誤
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwpLbK_HQWkOw6WQ4TOfJtz9wQC0Asd1U5e68TYOor-EhrdT7TO7QI9c13x5M3aNmyeDA/exec"; 
 
         // 狀態變數
         let isAdmin = false;
@@ -207,7 +210,11 @@
                         }
                     } catch (e) {
                         console.error("解析 JSON 失敗，收到的內容:", textResult);
-                        showToast("API 格式錯誤 (請確認部署權限為所有人)", "error");
+                        if (textResult.includes("<html") || textResult.includes("Sign in")) {
+                            showToast("權限錯誤：被教育帳號擋下，請確認 GAS 發布為「所有人」", "error");
+                        } else {
+                            showToast("API 格式錯誤 (請確認部署權限為所有人)", "error");
+                        }
                     }
                 } catch (error) {
                     console.error("Error fetching data:", error);
@@ -218,7 +225,7 @@
             }
         }
 
-        // 轉換 Google Drive 連結為可顯示的圖片連結 (使用 uc?export=view 或 thumbnail)
+        // 轉換 Google Drive 連結為可顯示的圖片連結 (使用 thumbnail API 以避免近期阻擋)
         function formatImageUrl(url) {
             if (!url) return '';
             // 檢查是否為 Google Drive 連結
@@ -227,8 +234,8 @@
             
             if (match && match[1]) {
                 const fileId = match[1];
-                // 轉換為 Google Drive 直接圖片下載連結
-                return `https://drive.google.com/uc?export=view&id=${fileId}`;
+                // 【修正點 2】改用 Google Drive Thumbnail API，穩定性更高，不易破圖
+                return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
             }
             return url; // 若不是 Drive 連結，直接回傳原網址
         }
