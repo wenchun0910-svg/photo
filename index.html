@@ -1,0 +1,491 @@
+
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活動相簿集錦</title>
+    <!-- 引入 Tailwind CSS 進行快速排版與響應式設計 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Phosphor Icons 圖示庫 -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* 自訂捲軸與平滑過渡效果 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
+        .transition-all { transition: all 0.3s ease; }
+        .image-container { overflow: hidden; }
+        .image-container img { transition: transform 0.5s ease; }
+        .image-container:hover img { transform: scale(1.05); }
+        
+        /* 隱藏預設捲軸，讓畫面更簡潔 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- 導覽列 -->
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="ph-fill ph-image text-blue-600 text-3xl"></i>
+                    <span class="font-bold text-xl text-gray-900">活動相簿集錦</span>
+                </div>
+                <div>
+                    <!-- 登入/登出按鈕 -->
+                    <button id="authBtn" onclick="toggleAuth()" class="flex items-center space-x-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="ph ph-user text-lg" id="authIcon"></i>
+                        <span id="authText">管理員登入</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區 -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- 管理員工具列 (登入後顯示) -->
+        <div id="adminToolbar" class="hidden mb-6 flex justify-between items-center bg-blue-50 p-4 rounded-lg border border-blue-100">
+            <span class="text-blue-800 font-medium">系統管理員已登入</span>
+            <button onclick="openPhotoModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center space-x-2 transition-colors">
+                <i class="ph ph-plus-circle text-lg"></i>
+                <span>新增相簿/照片</span>
+            </button>
+        </div>
+
+        <!-- 相簿網格 -->
+        <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- 相片卡片將由 JavaScript 動態生成 -->
+        </div>
+
+        <!-- 載入中動畫 -->
+        <div id="loadingIndicator" class="hidden flex justify-center items-center py-12">
+            <i class="ph ph-spinner animate-spin text-4xl text-blue-500"></i>
+        </div>
+        
+        <!-- 無資料提示 -->
+        <div id="emptyState" class="hidden text-center py-20 text-gray-500">
+            <i class="ph ph-images text-6xl mb-4 text-gray-300"></i>
+            <p class="text-lg">目前還沒有任何照片喔！</p>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
+        <div class="text-center text-sm text-gray-500">
+            &copy; 2026 活動相簿集錦系統. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- ================= 互動視窗 (Modals) ================= -->
+
+    <!-- 1. 登入視窗 -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full mx-4 transform transition-all">
+            <div class="text-center mb-6">
+                <i class="ph-fill ph-lock-key text-4xl text-blue-600 mb-2"></i>
+                <h2 class="text-2xl font-bold text-gray-800">管理員登入</h2>
+                <p class="text-sm text-gray-500 mt-1">預設測試密碼為：admin123</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">密碼</label>
+                    <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="請輸入密碼" onkeypress="if(event.key === 'Enter') checkLogin()">
+                </div>
+                <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition-colors">登入</button>
+                <button onclick="closeModal('loginModal')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 rounded-md transition-colors mt-2">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 新增/編輯照片視窗 -->
+    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm overflow-y-auto pt-10 pb-10">
+        <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-lg w-full mx-4 my-auto relative">
+            <button onclick="closeModal('photoModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="ph ph-x text-2xl"></i>
+            </button>
+            <h2 id="photoModalTitle" class="text-2xl font-bold text-gray-800 mb-6">新增照片</h2>
+            
+            <form id="photoForm" onsubmit="savePhoto(event)" class="space-y-5">
+                <input type="hidden" id="photoId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">活動名稱 / 標題 <span class="text-red-500">*</span></label>
+                    <input type="text" id="photoTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Google 雲端硬碟圖片連結 <span class="text-red-500">*</span></label>
+                    <input type="url" id="photoUrl" required placeholder="https://drive.google.com/file/d/..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <p class="text-xs text-gray-500 mt-1">請確認該圖片的共用設定為「知道連結的使用者皆可查看」。系統會自動轉為縮圖。</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">活動日期 <span class="text-red-500">*</span></label>
+                    <input type="date" id="photoDate" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">說明描述</label>
+                    <textarea id="photoDesc" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeModal('photoModal')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex items-center">
+                        <i class="ph ph-floppy-disk mr-2"></i> 儲存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. 確認刪除視窗 -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 text-center">
+            <i class="ph-fill ph-warning-circle text-5xl text-red-500 mb-4"></i>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">確定要刪除嗎？</h2>
+            <p class="text-gray-600 mb-6">刪除後將無法復原此照片紀錄。</p>
+            <input type="hidden" id="deleteId">
+            <div class="flex justify-center space-x-3">
+                <button onclick="closeModal('deleteModal')" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">取消</button>
+                <button onclick="confirmDelete()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors">確認刪除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 吐司通知 (Toast) -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg pointer-events-none">
+        <i id="toastIcon" class="ph-fill ph-check-circle text-green-400 text-xl mr-3"></i>
+        <span id="toastMessage" class="font-medium">操作成功</span>
+    </div>
+
+    <!-- ================= JavaScript 邏輯 ================= -->
+    <script>
+        /**
+         * 系統設定
+         * MOCK_MODE: 設為 true 時，資料只存在瀏覽器記憶體中 (測試用)。
+         * 部署時，請將 GAS_API_URL 替換為您的 Google Apps Script 發布網址，並將 MOCK_MODE 設為 false。
+         */
+        const MOCK_MODE = true; 
+        const GAS_API_URL = "https://script.google.com/macros/s/您的部署ID/exec"; 
+
+        // 狀態變數
+        let isAdmin = false;
+        let photosData = [
+            // 預設假資料
+            { id: "1", title: "2025 跨年晚會", url: "https://images.unsplash.com/photo-1546272989-40c92939c6c2?auto=format&fit=crop&q=80&w=800", date: "2025-12-31", desc: "大家一起倒數迎接新年！" },
+            { id: "2", title: "春季員工旅遊", url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800", date: "2026-03-15", desc: "前往陽明山賞花，天氣非常晴朗。" },
+            { id: "3", title: "第三季部門聚餐", url: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800", date: "2026-09-20", desc: "慶祝業績達標的歡樂時光。" }
+        ];
+
+        // 頁面載入時初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+        });
+
+        // ================= 資料處理與渲染 =================
+
+        // 取得資料
+        async function fetchData() {
+            showLoading(true);
+            if (MOCK_MODE) {
+                // 模擬網路延遲
+                setTimeout(() => {
+                    renderGallery();
+                    showLoading(false);
+                }, 500);
+            } else {
+                try {
+                    const response = await fetch(GAS_API_URL + "?action=get");
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        photosData = result.data;
+                        renderGallery();
+                    } else {
+                        showToast("讀取資料失敗", "error");
+                    }
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                    showToast("網路連線錯誤", "error");
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+
+        // 轉換 Google Drive 連結為可顯示的圖片連結 (使用 uc?export=view 或 thumbnail)
+        function formatImageUrl(url) {
+            if (!url) return '';
+            // 檢查是否為 Google Drive 連結
+            const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([-a-zA-Z0-9_]+)/;
+            const match = url.match(driveRegex);
+            
+            if (match && match[1]) {
+                const fileId = match[1];
+                // 轉換為 Google Drive 直接圖片下載連結
+                return `https://drive.google.com/uc?export=view&id=${fileId}`;
+            }
+            return url; // 若不是 Drive 連結，直接回傳原網址
+        }
+
+        // 渲染畫廊
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
+
+            if (photosData.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                // 依照日期新到舊排序
+                const sortedData = [...photosData].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                sortedData.forEach(photo => {
+                    const displayUrl = formatImageUrl(photo.url);
+                    const card = document.createElement('div');
+                    card.className = "bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow relative group flex flex-col";
+                    
+                    // 管理員按鈕 (浮動於圖片上)
+                    let adminButtons = '';
+                    if (isAdmin) {
+                        adminButtons = `
+                            <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <button onclick="editPhoto('${photo.id}')" class="bg-white text-blue-600 p-2 rounded-full shadow hover:bg-blue-50 transition-colors" title="編輯">
+                                    <i class="ph ph-pencil-simple text-lg"></i>
+                                </button>
+                                <button onclick="promptDelete('${photo.id}')" class="bg-white text-red-600 p-2 rounded-full shadow hover:bg-red-50 transition-colors" title="刪除">
+                                    <i class="ph ph-trash text-lg"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        ${adminButtons}
+                        <div class="image-container relative w-full pt-[66.66%] bg-gray-200">
+                            <img src="${displayUrl}" alt="${photo.title}" 
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCA4MDAgNjAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2EwYTBhMCIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5Yid54mH54Sh5rOV6LGJ5YWlPC90ZXh0Pjwvc3ZnPg==';" 
+                                 class="absolute top-0 left-0 w-full h-full object-cover">
+                        </div>
+                        <div class="p-4 flex-grow flex flex-col">
+                            <h3 class="font-bold text-lg text-gray-800 line-clamp-1">${photo.title}</h3>
+                            <p class="text-sm text-gray-500 mb-2 flex items-center mt-1">
+                                <i class="ph ph-calendar-blank mr-1"></i> ${photo.date}
+                            </p>
+                            <p class="text-gray-600 text-sm line-clamp-2 mt-auto">${photo.desc || '無說明'}</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        // ================= 權限管理 =================
+
+        function toggleAuth() {
+            if (isAdmin) {
+                // 執行登出
+                isAdmin = false;
+                updateAuthUI();
+                showToast("已登出管理員身分", "success");
+            } else {
+                // 顯示登入視窗
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginModal').classList.remove('hidden');
+                setTimeout(() => document.getElementById('loginPassword').focus(), 100);
+            }
+        }
+
+        function checkLogin() {
+            const pwd = document.getElementById('loginPassword').value;
+            // 系統預設密碼 (實務上應由後端驗證，此處為前端防護示範)
+            if (pwd === 'admin123') { 
+                isAdmin = true;
+                closeModal('loginModal');
+                updateAuthUI();
+                showToast("登入成功", "success");
+            } else {
+                showToast("密碼錯誤", "error");
+            }
+        }
+
+        function updateAuthUI() {
+            const authText = document.getElementById('authText');
+            const authIcon = document.getElementById('authIcon');
+            const adminToolbar = document.getElementById('adminToolbar');
+
+            if (isAdmin) {
+                authText.innerText = "登出管理員";
+                authIcon.className = "ph ph-sign-out text-lg text-red-500";
+                adminToolbar.classList.remove('hidden');
+            } else {
+                authText.innerText = "管理員登入";
+                authIcon.className = "ph ph-user text-lg text-gray-600";
+                adminToolbar.classList.add('hidden');
+            }
+            renderGallery(); // 重新渲染以顯示/隱藏編輯按鈕
+        }
+
+        // ================= CRUD 操作 =================
+
+        function openPhotoModal() {
+            document.getElementById('photoForm').reset();
+            document.getElementById('photoId').value = '';
+            document.getElementById('photoModalTitle').innerText = '新增照片';
+            // 預設日期為今天
+            document.getElementById('photoDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function editPhoto(id) {
+            const photo = photosData.find(p => p.id === id);
+            if (!photo) return;
+
+            document.getElementById('photoId').value = photo.id;
+            document.getElementById('photoTitle').value = photo.title;
+            document.getElementById('photoUrl').value = photo.url;
+            document.getElementById('photoDate').value = photo.date;
+            document.getElementById('photoDesc').value = photo.desc;
+            
+            document.getElementById('photoModalTitle').innerText = '編輯照片';
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        async function savePhoto(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('photoId').value;
+            const payload = {
+                title: document.getElementById('photoTitle').value,
+                url: document.getElementById('photoUrl').value,
+                date: document.getElementById('photoDate').value,
+                desc: document.getElementById('photoDesc').value
+            };
+
+            showLoading(true);
+            closeModal('photoModal');
+
+            if (MOCK_MODE) {
+                setTimeout(() => {
+                    if (id) {
+                        // 編輯
+                        const index = photosData.findIndex(p => p.id === id);
+                        if (index !== -1) photosData[index] = { ...payload, id };
+                        showToast("相片已更新", "success");
+                    } else {
+                        // 新增
+                        const newId = Date.now().toString();
+                        photosData.push({ ...payload, id: newId });
+                        showToast("相片已新增", "success");
+                    }
+                    renderGallery();
+                    showLoading(false);
+                }, 500);
+            } else {
+                // 呼叫 Google Apps Script API
+                const action = id ? 'update' : 'create';
+                if (id) payload.id = id;
+
+                try {
+                    const response = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: action, data: payload })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast(id ? "更新成功" : "新增成功", "success");
+                        fetchData(); // 重新拉取資料
+                    } else {
+                        showToast(result.message || "操作失敗", "error");
+                        showLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Save error:", error);
+                    showToast("網路錯誤，請稍後再試", "error");
+                    showLoading(false);
+                }
+            }
+        }
+
+        function promptDelete(id) {
+            document.getElementById('deleteId').value = id;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        async function confirmDelete() {
+            const id = document.getElementById('deleteId').value;
+            closeModal('deleteModal');
+            showLoading(true);
+
+            if (MOCK_MODE) {
+                setTimeout(() => {
+                    photosData = photosData.filter(p => p.id !== id);
+                    renderGallery();
+                    showLoading(false);
+                    showToast("照片已刪除", "success");
+                }, 500);
+            } else {
+                try {
+                    const response = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'delete', id: id })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast("刪除成功", "success");
+                        fetchData();
+                    } else {
+                        showToast(result.message || "刪除失敗", "error");
+                        showLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Delete error:", error);
+                    showToast("網路錯誤", "error");
+                    showLoading(false);
+                }
+            }
+        }
+
+        // ================= 工具函數 =================
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function showLoading(show) {
+            const loader = document.getElementById('loadingIndicator');
+            const grid = document.getElementById('galleryGrid');
+            if (show) {
+                loader.classList.remove('hidden');
+                grid.style.opacity = '0.3';
+            } else {
+                loader.classList.add('hidden');
+                grid.style.opacity = '1';
+            }
+        }
+
+        let toastTimeout;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            document.getElementById('toastMessage').innerText = message;
+
+            if (type === 'success') {
+                icon.className = "ph-fill ph-check-circle text-green-400 text-xl mr-3";
+            } else if (type === 'error') {
+                icon.className = "ph-fill ph-warning-circle text-red-400 text-xl mr-3";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
