@@ -241,20 +241,12 @@
          * 部署時，請將 GAS_API_URL 替換為您的 Google Apps Script 發布網址，並將 MOCK_MODE 設為 false。
          */
         const MOCK_MODE = false; 
-        
-        // 【修正點 1】已將您的網址中 /a/macros/dns.chanes.tc.edu.tw/ 移除，改為標準共用格式
-        // 這樣可以避免教育帳號的強制登入跳轉導致 CORS 錯誤
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzuCvOc-jxIUqgHtYrnPsliDIb0OwB8Ry6tka_YcNjOX6uZ-d7DDkklhGKT9yUA0QIt4w/exec"; 
 
         // 狀態變數
         let isAdmin = false;
         let usersData = [];
-        let photosData = [
-            // 預設假資料
-            { id: "1", title: "2025 跨年晚會", url: "https://images.unsplash.com/photo-1546272989-40c92939c6c2?auto=format&fit=crop&q=80&w=800", date: "2025-12-31", desc: "大家一起倒數迎接新年！" },
-            { id: "2", title: "春季員工旅遊", url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800", date: "2026-03-15", desc: "前往陽明山賞花，天氣非常晴朗。" },
-            { id: "3", title: "第三季部門聚餐", url: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800", date: "2026-09-20", desc: "慶祝業績達標的歡樂時光。" }
-        ];
+        let photosData = [];
 
         // 頁面載入時初始化
         document.addEventListener('DOMContentLoaded', () => {
@@ -267,11 +259,7 @@
         async function fetchData() {
             showLoading(true);
             if (MOCK_MODE) {
-                // 模擬網路延遲
-                setTimeout(() => {
-                    renderGallery();
-                    showLoading(false);
-                }, 500);
+                setTimeout(() => { renderGallery(); showLoading(false); }, 500);
             } else {
                 try {
                     const response = await fetch(GAS_API_URL + "?action=get", { redirect: "follow" });
@@ -302,19 +290,16 @@
             }
         }
 
-        // 轉換 Google Drive 連結為可顯示的圖片連結 (使用 thumbnail API 以避免近期阻擋)
+        // 轉換 Google Drive 連結為可顯示的圖片連結 (使用 thumbnail API)
         function formatImageUrl(url) {
             if (!url) return '';
-            // 檢查是否為 Google Drive 連結
             const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([-a-zA-Z0-9_]+)/;
             const match = url.match(driveRegex);
             
             if (match && match[1]) {
-                const fileId = match[1];
-                // 【修正點 2】改用 Google Drive Thumbnail API，穩定性更高，不易破圖
-                return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
             }
-            return url; // 若不是 Drive 連結，直接回傳原網址
+            return url; 
         }
 
         // 渲染畫廊
@@ -332,7 +317,6 @@
                 const sortedData = [...photosData].sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 sortedData.forEach(photo => {
-                    // 解析合併的網址 (支援新舊資料格式)
                     let targetUrl = photo.url;
                     let thumbUrl = photo.url;
                     if (photo.url && photo.url.includes("|||")) {
@@ -345,7 +329,6 @@
                     const card = document.createElement('div');
                     card.className = "bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow relative group flex flex-col";
                     
-                    // 管理員按鈕 (浮動於圖片上)
                     let adminButtons = '';
                     if (isAdmin) {
                         adminButtons = `
@@ -353,14 +336,13 @@
                                 <button onclick="editPhoto('${photo.id}')" class="bg-white text-blue-600 p-2 rounded-full shadow hover:bg-blue-50 transition-colors" title="編輯">
                                     <i class="ph ph-pencil-simple text-lg"></i>
                                 </button>
-                                <button onclick="promptDelete('${photo.id}')" class="bg-white text-red-600 p-2 rounded-full shadow hover:bg-red-50 transition-colors" title="刪除">
+                                <button onclick="promptDelete('${photo.id}', 'photo')" class="bg-white text-red-600 p-2 rounded-full shadow hover:bg-red-50 transition-colors" title="刪除">
                                     <i class="ph ph-trash text-lg"></i>
                                 </button>
                             </div>
                         `;
                     }
 
-                    // 將卡片內容用 <a> 標籤包覆，使其可點擊前往雲端硬碟
                     card.innerHTML = `
                         ${adminButtons}
                         <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="flex-grow flex flex-col group/link relative z-10">
@@ -368,7 +350,6 @@
                                 <img src="${displayUrl}" alt="${photo.title}" 
                                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCA4MDAgNjAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2EwYTBhMCIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5ZyW54mH54Sh5rOV6aGv56S6PC90ZXh0Pjwvc3ZnPg==';" 
                                      class="absolute top-0 left-0 w-full h-full object-cover">
-                                <!-- 懸停時顯示「開啟相簿」遮罩 -->
                                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover/link:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
                                     <div class="bg-white/90 text-gray-800 px-4 py-2 rounded-full font-medium opacity-0 group-hover/link:opacity-100 transform translate-y-4 group-hover/link:translate-y-0 transition-all duration-300 flex items-center shadow-lg">
                                         <i class="ph-bold ph-arrow-square-out mr-2"></i> 前往相簿
@@ -393,12 +374,10 @@
 
         function toggleAuth() {
             if (isAdmin) {
-                // 執行登出
                 isAdmin = false;
                 updateAuthUI();
                 showToast("已登出管理員身分", "success");
             } else {
-                // 顯示登入視窗
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('loginModal').classList.remove('hidden');
@@ -476,12 +455,109 @@
                 authIcon.className = "ph ph-user text-lg text-gray-600";
                 adminToolbar.classList.add('hidden');
             }
-            renderGallery(); // 重新渲染以顯示/隱藏編輯按鈕
+            renderGallery();
         }
 
-        // ================= CRUD 操作 =================
-
+        // ================= 相簿 CRUD 操作 =================
+        
         function openPhotoModal() {
+            document.getElementById('photoForm').reset();
+            document.getElementById('photoId').value = '';
+            document.getElementById('photoModalTitle').innerText = '新增照片';
+            document.getElementById('photoDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function editPhoto(id) {
+            const photo = photosData.find(p => p.id === id);
+            if (!photo) return;
+
+            let targetUrl = photo.url || '';
+            let thumbUrl = photo.url || '';
+            if (photo.url && photo.url.includes("|||")) {
+                const parts = photo.url.split("|||");
+                targetUrl = parts[0];
+                thumbUrl = parts[1];
+            }
+
+            document.getElementById('photoId').value = photo.id;
+            document.getElementById('photoTitle').value = photo.title;
+            document.getElementById('photoUrl').value = targetUrl;
+            document.getElementById('thumbnailUrl').value = thumbUrl;
+            document.getElementById('photoDate').value = photo.date;
+            document.getElementById('photoDesc').value = photo.desc;
+            
+            document.getElementById('photoModalTitle').innerText = '編輯照片';
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        async function savePhoto(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('photoId').value;
+            const combinedUrl = document.getElementById('photoUrl').value + "|||" + document.getElementById('thumbnailUrl').value;
+
+            const payload = {
+                title: document.getElementById('photoTitle').value,
+                url: combinedUrl,
+                date: document.getElementById('photoDate').value,
+                desc: document.getElementById('photoDesc').value
+            };
+
+            showLoading(true);
+            closeModal('photoModal');
+
+            if (MOCK_MODE) {
+                setTimeout(() => {
+                    if (id) {
+                        const index = photosData.findIndex(p => p.id === id);
+                        if (index !== -1) photosData[index] = { ...payload, id };
+                        showToast("相片已更新", "success");
+                    } else {
+                        const newId = Date.now().toString();
+                        photosData.push({ ...payload, id: newId });
+                        showToast("相片已新增", "success");
+                    }
+                    renderGallery();
+                    showLoading(false);
+                }, 500);
+            } else {
+                const action = id ? 'update' : 'create';
+                if (id) payload.id = id;
+
+                try {
+                    const response = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        },
+                        body: JSON.stringify({ action: action, data: payload })
+                    });
+                    
+                    const textResult = await response.text();
+                    try {
+                        const result = JSON.parse(textResult);
+                        if (result.status === 'success') {
+                            showToast(id ? "更新成功" : "新增成功", "success");
+                            fetchData(); 
+                        } else {
+                            showToast(result.message || "操作失敗", "error");
+                            showLoading(false);
+                        }
+                    } catch(e) {
+                         console.error("解析 JSON 失敗，收到的內容:", textResult);
+                         showToast("API 回傳格式錯誤 (請確認部署權限)", "error");
+                         showLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Save error:", error);
+                    showToast("網路錯誤，請稍後再試", "error");
+                    showLoading(false);
+                }
+            }
+        }
+
         function promptDelete(id, type = 'photo') {
             document.getElementById('deleteId').value = id;
             document.getElementById('deleteType').value = type;
