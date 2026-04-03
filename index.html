@@ -50,10 +50,16 @@
         <!-- 管理員工具列 (登入後顯示) -->
         <div id="adminToolbar" class="hidden mb-6 flex justify-between items-center bg-blue-50 p-4 rounded-lg border border-blue-100">
             <span class="text-blue-800 font-medium">系統管理員已登入</span>
-            <button onclick="openPhotoModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center space-x-2 transition-colors">
-                <i class="ph ph-plus-circle text-lg"></i>
-                <span>新增相簿/照片</span>
-            </button>
+            <div class="flex space-x-3">
+                <button onclick="openAccountListModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center space-x-2 transition-colors">
+                    <i class="ph ph-users text-lg"></i>
+                    <span>管理帳號</span>
+                </button>
+                <button onclick="openPhotoModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center space-x-2 transition-colors">
+                    <i class="ph ph-plus-circle text-lg"></i>
+                    <span>新增相簿/照片</span>
+                </button>
+            </div>
         </div>
 
         <!-- 相簿網格 -->
@@ -87,14 +93,21 @@
             <div class="text-center mb-6">
                 <i class="ph-fill ph-lock-key text-4xl text-blue-600 mb-2"></i>
                 <h2 class="text-2xl font-bold text-gray-800">管理員登入</h2>
-                <p class="text-sm text-gray-500 mt-1">預設測試密碼為：admin123</p>
+                <p class="text-sm text-gray-500 mt-1">若尚無帳號，預設帳號為 admin / admin123</p>
             </div>
             <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">帳號</label>
+                    <input type="text" id="loginUsername" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="請輸入帳號" onkeypress="if(event.key === 'Enter') document.getElementById('loginPassword').focus()">
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">密碼</label>
                     <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="請輸入密碼" onkeypress="if(event.key === 'Enter') checkLogin()">
                 </div>
-                <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition-colors">登入</button>
+                <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition-colors flex justify-center items-center">
+                    <span id="loginBtnText">登入</span>
+                    <i id="loginSpinner" class="ph ph-spinner animate-spin text-xl ml-2 hidden"></i>
+                </button>
                 <button onclick="closeModal('loginModal')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 rounded-md transition-colors mt-2">取消</button>
             </div>
         </div>
@@ -148,12 +161,69 @@
         <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 text-center">
             <i class="ph-fill ph-warning-circle text-5xl text-red-500 mb-4"></i>
             <h2 class="text-xl font-bold text-gray-800 mb-2">確定要刪除嗎？</h2>
-            <p class="text-gray-600 mb-6">刪除後將無法復原此照片紀錄。</p>
+            <p class="text-gray-600 mb-6">刪除後將無法復原此紀錄。</p>
             <input type="hidden" id="deleteId">
+            <input type="hidden" id="deleteType" value="photo">
             <div class="flex justify-center space-x-3">
                 <button onclick="closeModal('deleteModal')" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">取消</button>
                 <button onclick="confirmDelete()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors">確認刪除</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 5. 帳號管理列表視窗 -->
+    <div id="accountListModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm overflow-y-auto pt-10 pb-10">
+        <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-lg w-full mx-4 my-auto relative">
+            <button onclick="closeModal('accountListModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="ph ph-x text-2xl"></i>
+            </button>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                    <i class="ph-fill ph-users text-indigo-600 mr-2"></i> 帳號管理
+                </h2>
+                <button onclick="openAccountEditModal()" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center">
+                    <i class="ph ph-plus mr-1"></i> 新增帳號
+                </button>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">帳號 (Username)</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userListBody" class="bg-white divide-y divide-gray-200">
+                        <!-- 帳號列表動態生成 -->
+                    </tbody>
+                </table>
+                <div id="userLoadingIndicator" class="hidden flex justify-center items-center py-6">
+                    <i class="ph ph-spinner animate-spin text-2xl text-indigo-500"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 新增/編輯帳號視窗 -->
+    <div id="accountEditModal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 relative">
+            <h2 id="accountEditModalTitle" class="text-xl font-bold text-gray-800 mb-4">新增帳號</h2>
+            <form id="accountForm" onsubmit="saveUser(event)" class="space-y-4">
+                <input type="hidden" id="editUserId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">帳號名稱 <span class="text-red-500">*</span></label>
+                    <input type="text" id="editUsername" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">登入密碼 <span class="text-red-500">*</span></label>
+                    <input type="password" id="editPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="設定密碼">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal('accountEditModal')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors">儲存</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -174,10 +244,11 @@
         
         // 【修正點 1】已將您的網址中 /a/macros/dns.chanes.tc.edu.tw/ 移除，改為標準共用格式
         // 這樣可以避免教育帳號的強制登入跳轉導致 CORS 錯誤
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwpLbK_HQWkOw6WQ4TOfJtz9wQC0Asd1U5e68TYOor-EhrdT7TO7QI9c13x5M3aNmyeDA/exec"; 
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzuCvOc-jxIUqgHtYrnPsliDIb0OwB8Ry6tka_YcNjOX6uZ-d7DDkklhGKT9yUA0QIt4w/exec"; 
 
         // 狀態變數
         let isAdmin = false;
+        let usersData = [];
         let photosData = [
             // 預設假資料
             { id: "1", title: "2025 跨年晚會", url: "https://images.unsplash.com/photo-1546272989-40c92939c6c2?auto=format&fit=crop&q=80&w=800", date: "2025-12-31", desc: "大家一起倒數迎接新年！" },
@@ -328,22 +399,66 @@
                 showToast("已登出管理員身分", "success");
             } else {
                 // 顯示登入視窗
+                document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('loginModal').classList.remove('hidden');
-                setTimeout(() => document.getElementById('loginPassword').focus(), 100);
+                setTimeout(() => document.getElementById('loginUsername').focus(), 100);
             }
         }
 
-        function checkLogin() {
-            const pwd = document.getElementById('loginPassword').value;
-            // 系統預設密碼 (實務上應由後端驗證，此處為前端防護示範)
-            if (pwd === 'admin123') { 
-                isAdmin = true;
-                closeModal('loginModal');
-                updateAuthUI();
-                showToast("登入成功", "success");
+        async function checkLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const btnText = document.getElementById('loginBtnText');
+            const spinner = document.getElementById('loginSpinner');
+            
+            if (!username || !password) {
+                showToast("請輸入帳號與密碼", "error");
+                return;
+            }
+
+            btnText.innerText = "驗證中...";
+            spinner.classList.remove('hidden');
+
+            if (MOCK_MODE) {
+                setTimeout(() => {
+                    if (username === 'admin' && password === 'admin123') { 
+                        isAdmin = true;
+                        closeModal('loginModal');
+                        updateAuthUI();
+                        showToast("登入成功", "success");
+                    } else {
+                        showToast("帳號或密碼錯誤", "error");
+                    }
+                    btnText.innerText = "登入";
+                    spinner.classList.add('hidden');
+                }, 500);
             } else {
-                showToast("密碼錯誤", "error");
+                try {
+                    const response = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'login', username, password })
+                    });
+                    
+                    const textResult = await response.text();
+                    const result = JSON.parse(textResult);
+                    if (result.status === 'success') {
+                        isAdmin = true;
+                        closeModal('loginModal');
+                        updateAuthUI();
+                        showToast(result.message || "登入成功", "success");
+                    } else {
+                        showToast(result.message || "帳號或密碼錯誤", "error");
+                    }
+                } catch (error) {
+                    console.error("Login error:", error);
+                    showToast("網路錯誤或格式異常，請確認 API", "error");
+                } finally {
+                    btnText.innerText = "登入";
+                    spinner.classList.add('hidden');
+                }
             }
         }
 
@@ -367,135 +482,43 @@
         // ================= CRUD 操作 =================
 
         function openPhotoModal() {
-            document.getElementById('photoForm').reset();
-            document.getElementById('photoId').value = '';
-            document.getElementById('photoModalTitle').innerText = '新增照片';
-            // 預設日期為今天
-            document.getElementById('photoDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('photoModal').classList.remove('hidden');
-        }
-
-        function editPhoto(id) {
-            const photo = photosData.find(p => p.id === id);
-            if (!photo) return;
-
-            // 解析合併的網址
-            let targetUrl = photo.url || '';
-            let thumbUrl = photo.url || '';
-            if (photo.url && photo.url.includes("|||")) {
-                const parts = photo.url.split("|||");
-                targetUrl = parts[0];
-                thumbUrl = parts[1];
-            }
-
-            document.getElementById('photoId').value = photo.id;
-            document.getElementById('photoTitle').value = photo.title;
-            document.getElementById('photoUrl').value = targetUrl;
-            document.getElementById('thumbnailUrl').value = thumbUrl;
-            document.getElementById('photoDate').value = photo.date;
-            document.getElementById('photoDesc').value = photo.desc;
-            
-            document.getElementById('photoModalTitle').innerText = '編輯照片';
-            document.getElementById('photoModal').classList.remove('hidden');
-        }
-
-        async function savePhoto(event) {
-            event.preventDefault();
-            
-            const id = document.getElementById('photoId').value;
-            // 將兩個網址合併在一起存入 Google Sheet 的 url 欄位，無需修改後端
-            const combinedUrl = document.getElementById('photoUrl').value + "|||" + document.getElementById('thumbnailUrl').value;
-
-            const payload = {
-                title: document.getElementById('photoTitle').value,
-                url: combinedUrl,
-                date: document.getElementById('photoDate').value,
-                desc: document.getElementById('photoDesc').value
-            };
-
-            showLoading(true);
-            closeModal('photoModal');
-
-            if (MOCK_MODE) {
-                setTimeout(() => {
-                    if (id) {
-                        // 編輯
-                        const index = photosData.findIndex(p => p.id === id);
-                        if (index !== -1) photosData[index] = { ...payload, id };
-                        showToast("相片已更新", "success");
-                    } else {
-                        // 新增
-                        const newId = Date.now().toString();
-                        photosData.push({ ...payload, id: newId });
-                        showToast("相片已新增", "success");
-                    }
-                    renderGallery();
-                    showLoading(false);
-                }, 500);
-            } else {
-                // 呼叫 Google Apps Script API
-                const action = id ? 'update' : 'create';
-                if (id) payload.id = id;
-
-                try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: {
-                            'Content-Type': 'text/plain;charset=utf-8'
-                        },
-                        body: JSON.stringify({ action: action, data: payload })
-                    });
-                    
-                    const textResult = await response.text();
-                    try {
-                        const result = JSON.parse(textResult);
-                        if (result.status === 'success') {
-                            showToast(id ? "更新成功" : "新增成功", "success");
-                            fetchData(); // 重新拉取資料
-                        } else {
-                            showToast(result.message || "操作失敗", "error");
-                            showLoading(false);
-                        }
-                    } catch(e) {
-                         console.error("解析 JSON 失敗，收到的內容:", textResult);
-                         showToast("API 回傳格式錯誤 (請確認部署權限)", "error");
-                         showLoading(false);
-                    }
-                } catch (error) {
-                    console.error("Save error:", error);
-                    showToast("網路錯誤，請稍後再試", "error");
-                    showLoading(false);
-                }
-            }
-        }
-
-        function promptDelete(id) {
+        function promptDelete(id, type = 'photo') {
             document.getElementById('deleteId').value = id;
+            document.getElementById('deleteType').value = type;
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 
         async function confirmDelete() {
             const id = document.getElementById('deleteId').value;
+            const type = document.getElementById('deleteType').value;
+            const actionTarget = type === 'photo' ? 'delete' : 'delete_user';
+            
             closeModal('deleteModal');
-            showLoading(true);
+            
+            if (type === 'photo') showLoading(true);
+            else document.getElementById('userLoadingIndicator').classList.remove('hidden');
 
             if (MOCK_MODE) {
                 setTimeout(() => {
-                    photosData = photosData.filter(p => p.id !== id);
-                    renderGallery();
-                    showLoading(false);
-                    showToast("照片已刪除", "success");
+                    if (type === 'photo') {
+                        photosData = photosData.filter(p => p.id !== id);
+                        renderGallery();
+                        showLoading(false);
+                        showToast("照片已刪除", "success");
+                    } else {
+                        usersData = usersData.filter(u => u.id !== id);
+                        renderUsers();
+                        document.getElementById('userLoadingIndicator').classList.add('hidden');
+                        showToast("帳號已刪除", "success");
+                    }
                 }, 500);
             } else {
                 try {
                     const response = await fetch(GAS_API_URL, {
                         method: 'POST',
                         redirect: 'follow',
-                        headers: {
-                            'Content-Type': 'text/plain;charset=utf-8'
-                        },
-                        body: JSON.stringify({ action: 'delete', id: id })
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: actionTarget, id: id })
                     });
                     
                     const textResult = await response.text();
@@ -503,10 +526,12 @@
                         const result = JSON.parse(textResult);
                         if (result.status === 'success') {
                             showToast("刪除成功", "success");
-                            fetchData();
+                            if (type === 'photo') fetchData();
+                            else fetchUsers();
                         } else {
                             showToast(result.message || "刪除失敗", "error");
-                            showLoading(false);
+                            if (type === 'photo') showLoading(false);
+                            else document.getElementById('userLoadingIndicator').classList.add('hidden');
                         }
                     } catch (e) {
                          console.error("解析 JSON 失敗，收到的內容:", textResult);
@@ -517,6 +542,142 @@
                     console.error("Delete error:", error);
                     showToast("網路錯誤", "error");
                     showLoading(false);
+                }
+            }
+        }
+
+        // ================= 帳號管理 CRUD =================
+
+        async function fetchUsers() {
+            if (!isAdmin) return;
+            const loader = document.getElementById('userLoadingIndicator');
+            const tbody = document.getElementById('userListBody');
+            
+            loader.classList.remove('hidden');
+            tbody.innerHTML = '';
+
+            if (MOCK_MODE) {
+                setTimeout(() => {
+                    if (usersData.length === 0) usersData = [{id: '1', username: 'admin', password: 'admin123'}];
+                    renderUsers();
+                    loader.classList.add('hidden');
+                }, 500);
+            } else {
+                try {
+                    const response = await fetch(GAS_API_URL + "?action=get_users", { redirect: "follow" });
+                    const textResult = await response.text();
+                    const result = JSON.parse(textResult);
+                    if (result.status === 'success') {
+                        usersData = result.data || [];
+                        renderUsers();
+                    } else {
+                        showToast("讀取帳號失敗", "error");
+                    }
+                } catch (error) {
+                    console.error("Error fetching users:", error);
+                    showToast("網路連線錯誤", "error");
+                } finally {
+                    loader.classList.add('hidden');
+                }
+            }
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('userListBody');
+            tbody.innerHTML = '';
+            
+            if (usersData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" class="px-4 py-4 text-center text-sm text-gray-500">目前沒有其他帳號紀錄</td></tr>`;
+                return;
+            }
+
+            usersData.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${user.username}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editUser('${user.id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">編輯密碼</button>
+                        <button onclick="promptDelete('${user.id}', 'user')" class="text-red-600 hover:text-red-900">刪除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openAccountListModal() {
+            document.getElementById('accountListModal').classList.remove('hidden');
+            fetchUsers();
+        }
+
+        function openAccountEditModal() {
+            document.getElementById('accountForm').reset();
+            document.getElementById('editUserId').value = '';
+            document.getElementById('accountEditModalTitle').innerText = '新增帳號';
+            document.getElementById('accountEditModal').classList.remove('hidden');
+        }
+
+        function editUser(id) {
+            const user = usersData.find(u => u.id === id);
+            if (!user) return;
+            
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editUsername').value = user.username;
+            document.getElementById('editPassword').value = user.password;
+            
+            document.getElementById('accountEditModalTitle').innerText = '編輯帳號/密碼';
+            document.getElementById('accountEditModal').classList.remove('hidden');
+        }
+
+        async function saveUser(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('editUserId').value;
+            const payload = {
+                username: document.getElementById('editUsername').value,
+                password: document.getElementById('editPassword').value
+            };
+
+            document.getElementById('userLoadingIndicator').classList.remove('hidden');
+            closeModal('accountEditModal');
+
+            if (MOCK_MODE) {
+                setTimeout(() => {
+                    if (id) {
+                        const index = usersData.findIndex(u => u.id === id);
+                        if (index !== -1) usersData[index] = { ...payload, id };
+                        showToast("帳號已更新", "success");
+                    } else {
+                        usersData.push({ ...payload, id: Date.now().toString() });
+                        showToast("帳號已新增", "success");
+                    }
+                    renderUsers();
+                    document.getElementById('userLoadingIndicator').classList.add('hidden');
+                }, 500);
+            } else {
+                const action = id ? 'update_user' : 'create_user';
+                if (id) payload.id = id;
+
+                try {
+                    const response = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: action, data: payload })
+                    });
+                    
+                    const textResult = await response.text();
+                    const result = JSON.parse(textResult);
+                    if (result.status === 'success') {
+                        showToast(id ? "帳號更新成功" : "帳號新增成功", "success");
+                        fetchUsers(); 
+                    } else {
+                        showToast(result.message || "操作失敗", "error");
+                        document.getElementById('userLoadingIndicator').classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error("Save user error:", error);
+                    showToast("網路錯誤", "error");
+                    document.getElementById('userLoadingIndicator').classList.add('hidden');
                 }
             }
         }
