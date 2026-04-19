@@ -8,34 +8,39 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Phosphor Icons 圖示庫 -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
     <style>
-        /* 自訂捲軸與平滑過渡效果 */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
+        /* 現代藍色系風格 */
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: #f8fafc; /* Tailwind slate-50 */
+        }
+        
         .transition-all { transition: all 0.3s ease; }
         .image-container { overflow: hidden; }
         .image-container img { transition: transform 0.5s ease; }
         .image-container:hover img { transform: scale(1.05); }
         
-        /* 隱藏預設捲軸，讓畫面更簡潔 */
+        /* 現代感自訂捲軸 */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- 導覽列 -->
-    <nav class="bg-white shadow-md sticky top-0 z-40">
+    <!-- 導覽列 (深藍漸層與天空藍點綴) -->
+    <nav class="bg-gradient-to-r from-blue-950 to-blue-800 shadow-lg border-b-[3px] border-sky-400 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center space-x-2">
-                    <i class="ph-fill ph-image text-blue-600 text-3xl"></i>
-                    <span class="font-bold text-xl text-gray-900">活動相簿集錦</span>
+                <div class="flex items-center space-x-3">
+                    <i class="ph-fill ph-cloud-sun text-sky-400 text-3xl"></i>
+                    <span class="font-bold text-xl text-white tracking-wide">活動相簿集錦</span>
                 </div>
                 <div>
                     <!-- 登入/登出按鈕 -->
-                    <button id="authBtn" onclick="toggleAuth()" class="flex items-center space-x-1 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                    <button id="authBtn" onclick="toggleAuth()" class="flex items-center space-x-1 text-sm font-medium text-blue-200 hover:text-white transition-colors bg-blue-900/50 hover:bg-blue-700/50 border border-blue-700/50 px-3 py-1.5 rounded-lg">
                         <i class="ph ph-user text-lg" id="authIcon"></i>
                         <span id="authText">管理員登入</span>
                     </button>
@@ -53,20 +58,22 @@
             <!-- 搜尋框 -->
             <div class="relative w-full md:w-96 shrink-0">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="ph ph-magnifying-glass text-gray-400 text-lg"></i>
+                    <i class="ph ph-magnifying-glass text-blue-500 text-lg"></i>
                 </div>
-                <input type="text" id="searchInput" oninput="handleSearch()" class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:text-sm transition-all shadow-sm" placeholder="輸入關鍵字搜尋相簿...">
+                <input type="text" id="searchInput" oninput="handleSearch()" class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:text-sm transition-all shadow-sm" placeholder="輸入關鍵字搜尋相簿...">
             </div>
 
             <!-- 管理員工具列 (登入後顯示) -->
-            <div id="adminToolbar" class="hidden flex items-center bg-blue-50 p-2 rounded-lg border border-blue-100 w-full md:w-auto overflow-x-auto">
-                <span class="text-blue-800 font-medium mx-3 hidden md:inline whitespace-nowrap">系統管理員</span>
+            <div id="adminToolbar" class="hidden flex items-center bg-blue-50 p-2 rounded-xl border border-blue-100 w-full md:w-auto overflow-x-auto shadow-sm">
+                <span class="text-blue-800 font-bold mx-3 hidden md:inline whitespace-nowrap">
+                    <i class="ph-fill ph-shield-check text-blue-600 mr-1 align-middle text-lg"></i>系統管理員
+                </span>
                 <div class="flex space-x-2 w-full md:w-auto">
-                    <button onclick="openAccountListModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center justify-center flex-1 md:flex-none space-x-2 transition-colors">
+                    <button onclick="openAccountListModal()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg shadow-sm flex items-center justify-center flex-1 md:flex-none space-x-2 transition-colors">
                         <i class="ph ph-users text-lg"></i>
                         <span class="whitespace-nowrap">管理帳號</span>
                     </button>
-                    <button onclick="openPhotoModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center justify-center flex-1 md:flex-none space-x-2 transition-colors">
+                    <button onclick="openPhotoModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center justify-center flex-1 md:flex-none space-x-2 transition-colors">
                         <i class="ph ph-plus-circle text-lg"></i>
                         <span class="whitespace-nowrap">新增相簿</span>
                     </button>
@@ -75,101 +82,109 @@
             
         </div>
 
+        <!-- 載入中動畫 -->
+        <div id="loadingIndicator" class="flex justify-center items-center py-16">
+            <div class="text-center">
+                <i class="ph ph-spinner animate-spin text-5xl text-blue-500 mb-3"></i>
+                <p class="text-slate-500 font-medium">載入相簿資料庫中...</p>
+            </div>
+        </div>
+
         <!-- 相簿網格 -->
         <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <!-- 相片卡片將由 JavaScript 動態生成 -->
         </div>
-
-        <!-- 載入中動畫 -->
-        <div id="loadingIndicator" class="hidden flex justify-center items-center py-12">
-            <i class="ph ph-spinner animate-spin text-4xl text-blue-500"></i>
-        </div>
         
         <!-- 無資料提示 -->
-        <div id="emptyState" class="hidden text-center py-20 text-gray-500">
-            <i class="ph ph-images text-6xl mb-4 text-gray-300"></i>
-            <p class="text-lg" id="emptyStateText">目前還沒有任何照片喔！</p>
+        <div id="emptyState" class="hidden text-center py-24 text-slate-400">
+            <i class="ph-thin ph-images text-7xl mb-4 text-slate-300"></i>
+            <p class="text-lg text-slate-500" id="emptyStateText">目前還沒有任何照片喔！</p>
         </div>
 
         <!-- 分頁控制區 -->
         <div id="paginationContainer" class="mt-10 flex justify-center hidden">
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="paginationControls">
+            <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px" aria-label="Pagination" id="paginationControls">
                 <!-- 按鈕由 JS 動態產生 -->
             </nav>
         </div>
     </main>
 
-    <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
-        <div class="text-center text-sm text-gray-500">
-            &copy; 2026 活動相簿集錦系統. All rights reserved.
+    <footer class="bg-white border-t border-slate-200 py-6 mt-auto">
+        <div class="text-center text-sm text-slate-500">
+            &copy; 2026 活動相簿集錦系統 (Powered by Firebase). All rights reserved.
         </div>
     </footer>
 
     <!-- ================= 互動視窗 (Modals) ================= -->
 
     <!-- 1. 登入視窗 -->
-    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full mx-4 transform transition-all">
+    <div id="loginModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 transform transition-all">
             <div class="text-center mb-6">
-                <i class="ph-fill ph-lock-key text-4xl text-blue-600 mb-2"></i>
-                <h2 class="text-2xl font-bold text-gray-800">管理員登入</h2>
-                <p class="text-sm text-gray-500 mt-1"></p>
+                <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="ph-fill ph-lock-key text-3xl text-blue-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">管理員登入</h2>
+                <p class="text-sm text-slate-500 mt-1">首次登入預設：admin / admin123</p>
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">帳號</label>
-                    <input type="text" id="loginUsername" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="請輸入帳號" onkeypress="if(event.key === 'Enter') document.getElementById('loginPassword').focus()">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">帳號</label>
+                    <input type="text" id="loginUsername" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-shadow bg-slate-50 focus:bg-white" placeholder="請輸入帳號" onkeypress="if(event.key === 'Enter') document.getElementById('loginPassword').focus()">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">密碼</label>
-                    <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="請輸入密碼" onkeypress="if(event.key === 'Enter') checkLogin()">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">密碼</label>
+                    <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-shadow bg-slate-50 focus:bg-white" placeholder="請輸入密碼" onkeypress="if(event.key === 'Enter') checkLogin()">
                 </div>
-                <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition-colors flex justify-center items-center">
+                <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex justify-center items-center mt-2 shadow-sm">
                     <span id="loginBtnText">登入</span>
                     <i id="loginSpinner" class="ph ph-spinner animate-spin text-xl ml-2 hidden"></i>
                 </button>
-                <button onclick="closeModal('loginModal')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 rounded-md transition-colors mt-2">取消</button>
+                <button onclick="closeModal('loginModal')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-lg transition-colors mt-2">取消</button>
             </div>
         </div>
     </div>
 
     <!-- 2. 新增/編輯照片視窗 -->
-    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm overflow-y-auto pt-10 pb-10">
-        <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-lg w-full mx-4 my-auto relative">
-            <button onclick="closeModal('photoModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+    <div id="photoModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm overflow-y-auto pt-10 pb-10">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full mx-4 my-auto relative">
+            <button onclick="closeModal('photoModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1 rounded-full transition-colors">
                 <i class="ph ph-x text-2xl"></i>
             </button>
-            <h2 id="photoModalTitle" class="text-2xl font-bold text-gray-800 mb-6">新增照片</h2>
+            <div class="flex items-center mb-6">
+                <i class="ph-fill ph-image text-blue-600 text-2xl mr-2"></i>
+                <h2 id="photoModalTitle" class="text-2xl font-bold text-slate-800">新增相簿</h2>
+            </div>
             
             <form id="photoForm" onsubmit="savePhoto(event)" class="space-y-5">
                 <input type="hidden" id="photoId">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">活動名稱 / 標題 <span class="text-red-500">*</span></label>
-                    <input type="text" id="photoTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">活動名稱 / 標題 <span class="text-red-500">*</span></label>
+                    <input type="text" id="photoTitle" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-shadow">
                 </div>
-                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-4">
+                <div class="bg-sky-50/50 p-4 rounded-xl border border-sky-100 space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-blue-900 mb-1">1. 相簿或資料夾連結 (點擊後前往的網址) <span class="text-red-500">*</span></label>
-                        <input type="url" id="photoUrl" required placeholder="使用者點擊卡片後要開啟的連結" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <label class="block text-sm font-medium text-sky-900 mb-1">1. 相簿連結 (點擊後前往) <span class="text-red-500">*</span></label>
+                        <input type="url" id="photoUrl" required placeholder="使用者點擊卡片後要開啟的連結" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-shadow">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-blue-900 mb-1">2. 封面縮圖圖片連結 (指定相簿內的一張照片) <span class="text-red-500">*</span></label>
-                        <input type="url" id="thumbnailUrl" required placeholder="https://drive.google.com/file/d/..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
-                        <p class="text-xs text-blue-700 mt-1">請貼上相簿中「單張照片」的共用連結，系統會以此作為顯示的封面縮圖。</p>
+                        <label class="block text-sm font-medium text-sky-900 mb-1">2. 封面縮圖 (單張照片) <span class="text-red-500">*</span></label>
+                        <input type="url" id="thumbnailUrl" required placeholder="https://drive.google.com/file/d/..." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-shadow">
+                        <p class="text-xs text-sky-700 mt-1">請貼上相簿中「單張照片」的共用連結作為封面。</p>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">活動日期 <span class="text-red-500">*</span></label>
-                    <input type="date" id="photoDate" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">活動日期 <span class="text-red-500">*</span></label>
+                    <input type="date" id="photoDate" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-shadow">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">說明描述</label>
-                    <textarea id="photoDesc" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none"></textarea>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">說明描述</label>
+                    <textarea id="photoDesc" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-shadow"></textarea>
                 </div>
-                <div class="flex justify-end space-x-3 pt-4 border-t">
-                    <button type="button" onclick="closeModal('photoModal')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">取消</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex items-center">
-                        <i class="ph ph-floppy-disk mr-2"></i> 儲存
+                <div class="flex justify-end space-x-3 pt-5 border-t border-slate-100 mt-6">
+                    <button type="button" onclick="closeModal('photoModal')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors font-medium">取消</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors flex items-center font-medium">
+                        <i class="ph ph-floppy-disk mr-2 text-lg"></i> 儲存相簿
                     </button>
                 </div>
             </form>
@@ -177,251 +192,186 @@
     </div>
 
     <!-- 3. 確認刪除視窗 -->
-    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 text-center">
-            <i class="ph-fill ph-warning-circle text-5xl text-red-500 mb-4"></i>
-            <h2 class="text-xl font-bold text-gray-800 mb-2">確定要刪除嗎？</h2>
-            <p class="text-gray-600 mb-6">刪除後將無法復原此紀錄。</p>
+    <div id="deleteModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
+            <div class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <i class="ph-fill ph-trash text-3xl text-red-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">確定要刪除嗎？</h2>
+            <p class="text-slate-500 mb-8">此紀錄一旦刪除，將無法復原。</p>
             <input type="hidden" id="deleteId">
             <input type="hidden" id="deleteType" value="photo">
             <div class="flex justify-center space-x-3">
-                <button onclick="closeModal('deleteModal')" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">取消</button>
-                <button onclick="confirmDelete()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors">確認刪除</button>
+                <button onclick="closeModal('deleteModal')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors font-medium">取消</button>
+                <button onclick="confirmDelete()" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium shadow-sm">確認刪除</button>
             </div>
         </div>
     </div>
 
     <!-- 5. 帳號管理列表視窗 -->
-    <div id="accountListModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm overflow-y-auto pt-10 pb-10">
-        <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-lg w-full mx-4 my-auto relative">
-            <button onclick="closeModal('accountListModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+    <div id="accountListModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm overflow-y-auto pt-10 pb-10">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full mx-4 my-auto relative">
+            <button onclick="closeModal('accountListModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1 rounded-full transition-colors">
                 <i class="ph ph-x text-2xl"></i>
             </button>
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                    <i class="ph-fill ph-users text-indigo-600 mr-2"></i> 帳號管理
+            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center">
+                    <i class="ph-fill ph-users text-blue-600 mr-2"></i> 帳號管理
                 </h2>
-                <button onclick="openAccountEditModal()" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center">
+                <button onclick="openAccountEditModal()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center border border-sky-200">
                     <i class="ph ph-plus mr-1"></i> 新增帳號
                 </button>
             </div>
             
-            <div class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">帳號 (Username)</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            <th class="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">登入帳號</th>
+                            <th class="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">操作</th>
                         </tr>
                     </thead>
-                    <tbody id="userListBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="userListBody" class="bg-white divide-y divide-slate-100">
                         <!-- 帳號列表動態生成 -->
                     </tbody>
                 </table>
-                <div id="userLoadingIndicator" class="hidden flex justify-center items-center py-6">
-                    <i class="ph ph-spinner animate-spin text-2xl text-indigo-500"></i>
-                </div>
             </div>
         </div>
     </div>
 
     <!-- 6. 新增/編輯帳號視窗 -->
-    <div id="accountEditModal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 relative">
-            <h2 id="accountEditModalTitle" class="text-xl font-bold text-gray-800 mb-4">新增帳號</h2>
+    <div id="accountEditModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-[60] hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 relative">
+            <div class="flex items-center mb-5">
+                <i class="ph-fill ph-user-circle text-blue-600 text-2xl mr-2"></i>
+                <h2 id="accountEditModalTitle" class="text-xl font-bold text-slate-800">新增帳號</h2>
+            </div>
             <form id="accountForm" onsubmit="saveUser(event)" class="space-y-4">
                 <input type="hidden" id="editUserId">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">帳號名稱 <span class="text-red-500">*</span></label>
-                    <input type="text" id="editUsername" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">帳號名稱 <span class="text-red-500">*</span></label>
+                    <input type="text" id="editUsername" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">登入密碼 <span class="text-red-500">*</span></label>
-                    <input type="password" id="editPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="設定密碼">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">登入密碼 <span class="text-red-500">*</span></label>
+                    <input type="password" id="editPassword" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" placeholder="設定密碼">
                 </div>
-                <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeModal('accountEditModal')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">取消</button>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors">儲存</button>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100 mt-2">
+                    <button type="button" onclick="closeModal('accountEditModal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors font-medium">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors font-medium">儲存</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- 4. 吐司通知 (Toast) -->
-    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg pointer-events-none">
-        <i id="toastIcon" class="ph-fill ph-check-circle text-green-400 text-xl mr-3"></i>
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-[70] flex items-center bg-slate-800 text-white px-6 py-3.5 rounded-xl shadow-2xl pointer-events-none border border-slate-700">
+        <i id="toastIcon" class="ph-fill ph-check-circle text-sky-400 text-xl mr-3"></i>
         <span id="toastMessage" class="font-medium">操作成功</span>
     </div>
 
-    <!-- ================= JavaScript 邏輯 ================= -->
-    <script>
-        /**
-         * 系統設定
-         * MOCK_MODE: 設為 true 時，資料只存在瀏覽器記憶體中 (測試用)。
-         * 部署時，請將 GAS_API_URL 替換為您的 Google Apps Script 發布網址，並將 MOCK_MODE 設為 false。
-         */
-        const MOCK_MODE = false; 
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwTXCn1xvuOlLihKunO68lAmAOroa-cdP2nKD6mmstgYxb3r90srC1Twd5S0R_nrkewIw/exec"; 
+    <!-- ================= JavaScript / Firebase 邏輯 ================= -->
+    <script type="module">
+        // 匯入 Firebase SDK 模組
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase 初始化變數
+        let app, auth, db, currentUser;
+        const systemAppId = 'default-album-app'; // 獨立定義資料庫路徑，避免被設定檔覆蓋
 
         // 狀態與分頁變數
         let isAdmin = false;
         let usersData = [];
         let photosData = [];
-        
         let currentPage = 1;
-        const itemsPerPage = 8; // 設定每頁顯示 8 筆
+        const itemsPerPage = 8;
         let searchQuery = '';
+        
+        // 即時監聽取消函數
+        let unsubscribeAlbums = null;
+        let unsubscribeAccounts = null;
 
-        // 頁面載入時初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchData();
-        });
+        // --- 1. 系統初始化與認證 ---
+        const initFirebase = async () => {
+            try {
+                // 讀取原本提供的 Firebase 設定
+         const firebaseConfig = {
+  apiKey: "AIzaSyCEE72yBbcuTH_OtatNyFRYZXwRYJXPRcM",
+  authDomain: "photo-9e02b.firebaseapp.com",
+  projectId: "photo-9e02b",
+  storageBucket: "photo-9e02b.firebasestorage.app",
+  messagingSenderId: "220524122796",
+  appId: "1:220524122796:web:f1fb0ee8388fd4fdb48509"
+};
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
 
-        // ================= 資料處理與渲染 =================
-
-        // 取得資料
-        async function fetchData() {
-            showLoading(true);
-            if (MOCK_MODE) {
-                setTimeout(() => { renderGallery(); showLoading(false); }, 500);
-            } else {
-                try {
-                    const response = await fetch(GAS_API_URL + "?action=get", { redirect: "follow" });
-                    const textResult = await response.text();
-                    
-                    try {
-                        const result = JSON.parse(textResult);
-                        if (result.status === 'success') {
-                            photosData = result.data || [];
-                            renderGallery();
-                        } else {
-                            showToast("讀取資料失敗: " + (result.message || ""), "error");
-                        }
-                    } catch (e) {
-                        console.error("解析 JSON 失敗，收到的內容:", textResult);
-                        if (textResult.includes("<html") || textResult.includes("Sign in")) {
-                            showToast("權限錯誤：被教育帳號擋下，請確認 GAS 發布為「所有人」", "error");
-                        } else {
-                            showToast("API 格式錯誤 (請確認部署權限為所有人)", "error");
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error fetching data:", error);
-                    showToast("網路連線錯誤或 CORS 阻擋", "error");
-                } finally {
-                    showLoading(false);
+                // 認證優先：獲取 token 或匿名登入
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
+
+                // 監聽登入狀態
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (user) {
+                        setupRealtimeListeners();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                document.getElementById('loadingIndicator').innerHTML = `<p class="text-red-500 font-medium"><i class="ph ph-warning-circle text-xl align-middle"></i> 系統初始化失敗，請重新整理</p>`;
             }
-        }
+        };
+
+        // --- 2. 設置 Firestore 即時監聽 (Real-time updates) ---
+        const setupRealtimeListeners = () => {
+            if (!currentUser) return;
+
+            const albumsRef = collection(db, 'artifacts', systemAppId, 'public', 'data', 'albums');
+            const accountsRef = collection(db, 'artifacts', systemAppId, 'public', 'data', 'accounts');
+
+            // 監聽相簿資料
+            unsubscribeAlbums = onSnapshot(albumsRef, (snapshot) => {
+                photosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                renderGallery();
+            }, (error) => console.error("Error fetching albums:", error));
+
+            // 監聽帳號資料
+            unsubscribeAccounts = onSnapshot(accountsRef, (snapshot) => {
+                usersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderUsers();
+            }, (error) => console.error("Error fetching accounts:", error));
+        };
+
+        // --- 3. 畫面渲染與核心邏輯 ---
 
         // 轉換 Google Drive 連結為可顯示的圖片連結 (使用 thumbnail API)
-        function formatImageUrl(url) {
+        const formatImageUrl = (url) => {
             if (!url) return '';
             const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([-a-zA-Z0-9_]+)/;
             const match = url.match(driveRegex);
-            
             if (match && match[1]) {
                 return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
             }
             return url; 
-        }
+        };
 
-        // 搜尋功能
-        function handleSearch() {
-            searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
-            currentPage = 1; // 重新搜尋時跳回第一頁
-            renderGallery();
-        }
-
-        // 切換頁面
-        function changePage(page) {
-            currentPage = page;
-            renderGallery();
-            // 切換分頁後自動平滑捲動到上方
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // 渲染分頁按鈕
-        function renderPagination(totalItems, totalPages) {
-            const controls = document.getElementById('paginationControls');
-            const container = document.getElementById('paginationContainer');
-            controls.innerHTML = '';
-
-            if (totalPages <= 1) {
-                container.classList.add('hidden');
-                return;
-            }
-            container.classList.remove('hidden');
-
-            // 上一頁按鈕
-            const prevBtn = document.createElement('button');
-            prevBtn.onclick = () => changePage(currentPage - 1);
-            prevBtn.disabled = currentPage === 1;
-            prevBtn.className = `relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50 transition-colors'}`;
-            prevBtn.innerHTML = '<i class="ph ph-caret-left"></i>';
-            controls.appendChild(prevBtn);
-
-            // 頁碼滑動視窗計算
-            let startPage = Math.max(1, currentPage - 2);
-            let endPage = Math.min(totalPages, currentPage + 2);
-            
-            if (currentPage <= 2) endPage = Math.min(totalPages, 5);
-            if (currentPage >= totalPages - 1) startPage = Math.max(1, totalPages - 4);
-
-            if (startPage > 1) {
-                controls.appendChild(createPageBtn(1));
-                if (startPage > 2) {
-                    const dots = document.createElement('span');
-                    dots.className = "relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700";
-                    dots.innerText = "...";
-                    controls.appendChild(dots);
-                }
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                controls.appendChild(createPageBtn(i));
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    const dots = document.createElement('span');
-                    dots.className = "relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700";
-                    dots.innerText = "...";
-                    controls.appendChild(dots);
-                }
-                controls.appendChild(createPageBtn(totalPages));
-            }
-
-            // 下一頁按鈕
-            const nextBtn = document.createElement('button');
-            nextBtn.onclick = () => changePage(currentPage + 1);
-            nextBtn.disabled = currentPage === totalPages;
-            nextBtn.className = `relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50 transition-colors'}`;
-            nextBtn.innerHTML = '<i class="ph ph-caret-right"></i>';
-            controls.appendChild(nextBtn);
-        }
-
-        // 建立單一頁碼按鈕元件
-        function createPageBtn(page) {
-            const btn = document.createElement('button');
-            btn.onclick = () => changePage(page);
-            if (page === currentPage) {
-                btn.className = "z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium";
-            } else {
-                btn.className = "bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors";
-            }
-            btn.innerText = page;
-            return btn;
-        }
-
-        // 渲染畫廊
-        function renderGallery() {
+        // 渲染畫廊 (含搜尋與分頁)
+        const renderGallery = () => {
             const grid = document.getElementById('galleryGrid');
             const emptyState = document.getElementById('emptyState');
             const emptyStateText = document.getElementById('emptyStateText');
             grid.innerHTML = '';
 
-            // 1. 關鍵字搜尋過濾
+            // 搜尋過濾
             let filteredData = photosData;
             if (searchQuery) {
                 filteredData = photosData.filter(photo => 
@@ -437,13 +387,12 @@
             } else {
                 emptyState.classList.add('hidden');
                 
-                // 2. 依照日期新到舊排序
+                // 排序 (日期新到舊)
                 const sortedData = [...filteredData].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                // 3. 分頁切割處理
+                // 分頁處理
                 const totalItems = sortedData.length;
                 const totalPages = Math.ceil(totalItems / itemsPerPage);
-                
                 if (currentPage > totalPages) currentPage = totalPages;
                 if (currentPage < 1) currentPage = 1;
 
@@ -451,7 +400,7 @@
                 const endIndex = startIndex + itemsPerPage;
                 const paginatedData = sortedData.slice(startIndex, endIndex);
 
-                // 4. 產生目前頁面的卡片
+                // 產生卡片
                 paginatedData.forEach(photo => {
                     let targetUrl = photo.url;
                     let thumbUrl = photo.url;
@@ -463,16 +412,18 @@
 
                     const displayUrl = formatImageUrl(thumbUrl);
                     const card = document.createElement('div');
-                    card.className = "bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow relative group flex flex-col";
+                    
+                    // 現代藍色系卡片外觀
+                    card.className = "bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-blue-300 transition-all duration-300 relative group flex flex-col";
                     
                     let adminButtons = '';
                     if (isAdmin) {
                         adminButtons = `
-                            <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                <button onclick="editPhoto('${photo.id}')" class="bg-white text-blue-600 p-2 rounded-full shadow hover:bg-blue-50 transition-colors" title="編輯">
+                            <div class="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                <button onclick="editPhoto('${photo.id}')" class="bg-white/90 text-blue-600 p-2 rounded-lg shadow hover:bg-blue-50 hover:text-blue-800 transition-colors border border-blue-100 backdrop-blur-sm" title="編輯">
                                     <i class="ph ph-pencil-simple text-lg"></i>
                                 </button>
-                                <button onclick="promptDelete('${photo.id}', 'photo')" class="bg-white text-red-600 p-2 rounded-full shadow hover:bg-red-50 transition-colors" title="刪除">
+                                <button onclick="promptDelete('${photo.id}', 'photo')" class="bg-white/90 text-red-500 p-2 rounded-lg shadow hover:bg-red-50 hover:text-red-700 transition-colors border border-red-100 backdrop-blur-sm" title="刪除">
                                     <i class="ph ph-trash text-lg"></i>
                                 </button>
                             </div>
@@ -482,26 +433,27 @@
                     card.innerHTML = `
                         ${adminButtons}
                         <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" onclick="recordView('${photo.id}')" class="flex-grow flex flex-col group/link relative z-10">
-                            <div class="image-container relative w-full pt-[66.66%] bg-gray-200">
+                            <div class="image-container relative w-full pt-[66.66%] bg-slate-100 border-b border-slate-100">
                                 <img src="${displayUrl}" alt="${photo.title}" 
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCA4MDAgNjAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2EwYTBhMCIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5ZyW54mH54Sh5rOV6aGv56S6PC90ZXh0Pjwvc3ZnPg==';" 
+                                     onerror="if(this.src.includes('thumbnail')){ this.src=this.src.replace('thumbnail?id=','uc?export=view&id=').replace('&sz=w1000',''); } else { this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCA4MDAgNjAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjOTRhM2I4IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7lnJbniYfnhJHms5Xpoa/npLo8L3RleHQ+PC9zdmc+'; }" 
                                      class="absolute top-0 left-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover/link:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                                    <div class="bg-white/90 text-gray-800 px-4 py-2 rounded-full font-medium opacity-0 group-hover/link:opacity-100 transform translate-y-4 group-hover/link:translate-y-0 transition-all duration-300 flex items-center shadow-lg">
+                                <!-- 現代半透明藍遮罩 -->
+                                <div class="absolute inset-0 bg-blue-900 bg-opacity-0 group-hover/link:bg-opacity-40 transition-all duration-500 flex items-center justify-center">
+                                    <div class="bg-white/95 text-blue-900 px-5 py-2.5 rounded-full font-bold opacity-0 group-hover/link:opacity-100 transform translate-y-4 group-hover/link:translate-y-0 transition-all duration-300 flex items-center shadow-xl border border-blue-100">
                                         <i class="ph-bold ph-arrow-square-out mr-2"></i> 前往相簿
                                     </div>
                                 </div>
                             </div>
-                            <div class="p-4 flex-grow flex flex-col">
-                                <h3 class="font-bold text-lg text-gray-800 line-clamp-1 group-hover/link:text-blue-600 transition-colors">${photo.title}</h3>
-                                <p class="text-sm text-gray-500 mb-2 flex items-center mt-1">
-                                    <i class="ph ph-calendar-blank mr-1"></i> ${photo.date}
+                            <div class="p-5 flex-grow flex flex-col bg-white">
+                                <h3 class="font-bold text-lg text-slate-800 line-clamp-1 group-hover/link:text-blue-600 transition-colors">${photo.title}</h3>
+                                <p class="text-sm text-slate-500 mb-3 flex items-center mt-1 font-medium">
+                                    <i class="ph-fill ph-calendar-blank mr-1.5 text-slate-400"></i> ${photo.date}
                                 </p>
-                                <div class="flex justify-between items-end mt-auto pt-2">
-                                    <p class="text-gray-600 text-sm line-clamp-2 pr-2">${photo.desc || '無說明'}</p>
-                                    <div class="flex items-center text-gray-400 text-xs shrink-0 bg-gray-50 px-2 py-1 rounded-md" title="瀏覽人次">
-                                        <i class="ph-fill ph-eye mr-1 text-gray-400"></i>
-                                        <span id="view-count-${photo.id}" class="font-medium text-gray-500">${photo.views || 0}</span>
+                                <div class="flex justify-between items-end mt-auto pt-3 border-t border-slate-100">
+                                    <p class="text-slate-500 text-sm line-clamp-2 pr-3 leading-relaxed">${photo.desc || '無說明'}</p>
+                                    <div class="flex items-center text-sky-700 text-xs shrink-0 bg-sky-50 border border-sky-100 px-2.5 py-1.5 rounded-lg shadow-sm" title="瀏覽人次">
+                                        <i class="ph-fill ph-eye mr-1 text-sky-500"></i>
+                                        <span id="view-count-${photo.id}" class="font-semibold">${photo.views || 0}</span>
                                     </div>
                                 </div>
                             </div>
@@ -510,14 +462,152 @@
                     grid.appendChild(card);
                 });
 
-                // 5. 渲染下方分頁控制列
                 renderPagination(totalItems, totalPages);
             }
-        }
+        };
 
-        // ================= 權限管理 =================
+        // --- 4. 分頁邏輯 (現代按鈕樣式) ---
+        const changePage = (page) => {
+            currentPage = page;
+            renderGallery();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
-        function toggleAuth() {
+        const renderPagination = (totalItems, totalPages) => {
+            const controls = document.getElementById('paginationControls');
+            const container = document.getElementById('paginationContainer');
+            controls.innerHTML = '';
+
+            if (totalPages <= 1) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+
+            const prevBtn = document.createElement('button');
+            prevBtn.onclick = () => changePage(currentPage - 1);
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.className = `relative inline-flex items-center px-3 py-2 rounded-l-lg border border-slate-300 bg-white text-sm font-semibold ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors'}`;
+            prevBtn.innerHTML = '<i class="ph-bold ph-caret-left"></i>';
+            controls.appendChild(prevBtn);
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            if (currentPage <= 2) endPage = Math.min(totalPages, 5);
+            if (currentPage >= totalPages - 1) startPage = Math.max(1, totalPages - 4);
+
+            if (startPage > 1) {
+                controls.appendChild(createPageBtn(1));
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = "relative inline-flex items-center px-4 py-2 border border-slate-300 bg-white text-sm font-semibold text-slate-500";
+                    dots.innerText = "⋯";
+                    controls.appendChild(dots);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                controls.appendChild(createPageBtn(i));
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = "relative inline-flex items-center px-4 py-2 border border-slate-300 bg-white text-sm font-semibold text-slate-500";
+                    dots.innerText = "⋯";
+                    controls.appendChild(dots);
+                }
+                controls.appendChild(createPageBtn(totalPages));
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.onclick = () => changePage(currentPage + 1);
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.className = `relative inline-flex items-center px-3 py-2 rounded-r-lg border border-slate-300 bg-white text-sm font-semibold ${currentPage === totalPages ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors'}`;
+            nextBtn.innerHTML = '<i class="ph-bold ph-caret-right"></i>';
+            controls.appendChild(nextBtn);
+        };
+
+        const createPageBtn = (page) => {
+            const btn = document.createElement('button');
+            btn.onclick = () => changePage(page);
+            btn.className = page === currentPage 
+                ? "z-10 bg-blue-600 border-blue-600 text-white relative inline-flex items-center px-4 py-2 border text-sm font-semibold shadow-sm"
+                : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-semibold transition-colors";
+            btn.innerText = page;
+            return btn;
+        };
+
+        // --- 5. Firebase 寫入操作 (相簿) ---
+        
+        const savePhoto = async (event) => {
+            event.preventDefault();
+            if (!currentUser) return;
+
+            const id = document.getElementById('photoId').value;
+            const combinedUrl = document.getElementById('photoUrl').value + "|||" + document.getElementById('thumbnailUrl').value;
+            const payload = {
+                title: document.getElementById('photoTitle').value,
+                url: combinedUrl,
+                date: document.getElementById('photoDate').value,
+                desc: document.getElementById('photoDesc').value,
+            };
+
+            closeModal('photoModal');
+            try {
+                if (id) {
+                    await updateDoc(doc(db, 'artifacts', systemAppId, 'public', 'data', 'albums', id), payload);
+                    showToast("相簿已更新", "success");
+                } else {
+                    payload.views = 0; // 新增相簿預設為 0
+                    await addDoc(collection(db, 'artifacts', systemAppId, 'public', 'data', 'albums'), payload);
+                    showToast("相簿已新增", "success");
+                }
+            } catch (error) {
+                console.error("Save Error:", error);
+                showToast("儲存失敗", "error");
+            }
+        };
+
+        const confirmDelete = async () => {
+            if (!currentUser) return;
+            const id = document.getElementById('deleteId').value;
+            const type = document.getElementById('deleteType').value;
+            closeModal('deleteModal');
+
+            try {
+                if (type === 'photo') {
+                    await deleteDoc(doc(db, 'artifacts', systemAppId, 'public', 'data', 'albums', id));
+                    showToast("相簿已刪除", "success");
+                } else {
+                    await deleteDoc(doc(db, 'artifacts', systemAppId, 'public', 'data', 'accounts', id));
+                    showToast("帳號已刪除", "success");
+                }
+            } catch (error) {
+                console.error("Delete Error:", error);
+                showToast("刪除失敗", "error");
+            }
+        };
+
+        // 記錄瀏覽次數
+        const recordView = async (id) => {
+            const photo = photosData.find(p => p.id === id);
+            if (photo && currentUser) {
+                try {
+                    const newViews = (photo.views || 0) + 1;
+                    // 樂觀 UI 更新
+                    document.getElementById(`view-count-${id}`).innerText = newViews;
+                    // Firebase 更新
+                    await updateDoc(doc(db, 'artifacts', systemAppId, 'public', 'data', 'albums', id), { views: newViews });
+                } catch(e) {
+                    console.error("View record failed:", e);
+                }
+            }
+        };
+
+        // --- 6. 權限與帳號管理 ---
+
+        const toggleAuth = () => {
             if (isAdmin) {
                 isAdmin = false;
                 updateAuthUI();
@@ -528,92 +618,130 @@
                 document.getElementById('loginModal').classList.remove('hidden');
                 setTimeout(() => document.getElementById('loginUsername').focus(), 100);
             }
-        }
+        };
 
-        async function checkLogin() {
+        const checkLogin = async () => {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
-            const btnText = document.getElementById('loginBtnText');
-            const spinner = document.getElementById('loginSpinner');
             
             if (!username || !password) {
                 showToast("請輸入帳號與密碼", "error");
                 return;
             }
 
-            btnText.innerText = "驗證中...";
-            spinner.classList.remove('hidden');
-
-            if (MOCK_MODE) {
-                setTimeout(() => {
-                    if (username === 'admin' && password === 'admin123') { 
-                        isAdmin = true;
-                        closeModal('loginModal');
-                        updateAuthUI();
-                        showToast("登入成功", "success");
-                    } else {
-                        showToast("帳號或密碼錯誤", "error");
-                    }
-                    btnText.innerText = "登入";
-                    spinner.classList.add('hidden');
-                }, 500);
-            } else {
+            // 檢查 Firebase 中的帳號清單
+            const match = usersData.find(u => u.username === username && u.password === password);
+            
+            if (match) {
+                isAdmin = true;
+                closeModal('loginModal');
+                updateAuthUI();
+                showToast("登入成功", "success");
+            } 
+            // 若為首次使用且系統無帳號，允許預設帳密自動寫入資料庫
+            else if (usersData.length === 0 && username === 'admin' && password === 'admin123') {
                 try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'login', username, password })
-                    });
-                    
-                    const textResult = await response.text();
-                    const result = JSON.parse(textResult);
-                    if (result.status === 'success') {
-                        isAdmin = true;
-                        closeModal('loginModal');
-                        updateAuthUI();
-                        showToast(result.message || "登入成功", "success");
-                    } else {
-                        showToast(result.message || "帳號或密碼錯誤", "error");
+                    isAdmin = true;
+                    if(currentUser) {
+                        await addDoc(collection(db, 'artifacts', systemAppId, 'public', 'data', 'accounts'), { username: 'admin', password: 'admin123' });
                     }
-                } catch (error) {
-                    console.error("Login error:", error);
-                    showToast("網路錯誤或格式異常，請確認 API", "error");
-                } finally {
-                    btnText.innerText = "登入";
-                    spinner.classList.add('hidden');
+                    closeModal('loginModal');
+                    updateAuthUI();
+                    showToast("登入成功 (預設帳號已建立)", "success");
+                } catch (e) {
+                    showToast("寫入權限失敗", "error");
                 }
+            } else {
+                showToast("帳號或密碼錯誤", "error");
             }
-        }
+        };
 
-        function updateAuthUI() {
+        const updateAuthUI = () => {
             const authText = document.getElementById('authText');
             const authIcon = document.getElementById('authIcon');
             const adminToolbar = document.getElementById('adminToolbar');
 
             if (isAdmin) {
                 authText.innerText = "登出管理員";
-                authIcon.className = "ph ph-sign-out text-lg text-red-500";
+                authIcon.className = "ph-fill ph-sign-out text-lg text-red-400";
                 adminToolbar.classList.remove('hidden');
             } else {
                 authText.innerText = "管理員登入";
-                authIcon.className = "ph ph-user text-lg text-gray-600";
+                authIcon.className = "ph ph-user text-lg text-blue-200";
                 adminToolbar.classList.add('hidden');
             }
             renderGallery();
-        }
+        };
 
-        // ================= 相簿 CRUD 操作 =================
-        
-        function openPhotoModal() {
+        const renderUsers = () => {
+            const tbody = document.getElementById('userListBody');
+            tbody.innerHTML = '';
+            
+            if (usersData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" class="px-5 py-6 text-center text-sm text-slate-400">目前沒有其他帳號紀錄</td></tr>`;
+                return;
+            }
+
+            usersData.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-5 py-3 whitespace-nowrap text-sm font-semibold text-slate-700">${user.username}</td>
+                    <td class="px-5 py-3 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editUser('${user.id}')" class="text-blue-600 hover:text-blue-800 mr-4 transition-colors">修改密碼</button>
+                        <button onclick="promptDelete('${user.id}', 'user')" class="text-red-500 hover:text-red-700 transition-colors">刪除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        const saveUser = async (event) => {
+            event.preventDefault();
+            if (!currentUser) return;
+            
+            const id = document.getElementById('editUserId').value;
+            const payload = {
+                username: document.getElementById('editUsername').value,
+                password: document.getElementById('editPassword').value
+            };
+
+            closeModal('accountEditModal');
+            try {
+                if (id) {
+                    await updateDoc(doc(db, 'artifacts', systemAppId, 'public', 'data', 'accounts', id), payload);
+                    showToast("帳號資料已更新", "success");
+                } else {
+                    await addDoc(collection(db, 'artifacts', systemAppId, 'public', 'data', 'accounts'), payload);
+                    showToast("新帳號已建立", "success");
+                }
+            } catch (error) {
+                console.error("Save User Error:", error);
+                showToast("儲存失敗", "error");
+            }
+        };
+
+        // --- 7. Modal 與通用 UI 控制 ---
+
+        const handleSearch = () => {
+            searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            currentPage = 1; 
+            renderGallery();
+        };
+
+        const closeModal = (modalId) => {
+            document.getElementById(modalId).classList.add('hidden');
+        };
+
+        const openPhotoModal = () => {
             document.getElementById('photoForm').reset();
             document.getElementById('photoId').value = '';
-            document.getElementById('photoModalTitle').innerText = '新增照片';
+            document.getElementById('photoModalTitle').innerText = '新增相簿';
             document.getElementById('photoDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('photoModal').classList.remove('hidden');
-        }
+        };
 
-        function editPhoto(id) {
+        const editPhoto = (id) => {
             const photo = photosData.find(p => p.id === id);
             if (!photo) return;
 
@@ -632,212 +760,28 @@
             document.getElementById('photoDate').value = photo.date;
             document.getElementById('photoDesc').value = photo.desc;
             
-            document.getElementById('photoModalTitle').innerText = '編輯照片';
+            document.getElementById('photoModalTitle').innerText = '編輯相簿';
             document.getElementById('photoModal').classList.remove('hidden');
-        }
+        };
 
-        async function savePhoto(event) {
-            event.preventDefault();
-            
-            const id = document.getElementById('photoId').value;
-            const combinedUrl = document.getElementById('photoUrl').value + "|||" + document.getElementById('thumbnailUrl').value;
-
-            const payload = {
-                title: document.getElementById('photoTitle').value,
-                url: combinedUrl,
-                date: document.getElementById('photoDate').value,
-                desc: document.getElementById('photoDesc').value
-            };
-
-            showLoading(true);
-            closeModal('photoModal');
-
-            if (MOCK_MODE) {
-                setTimeout(() => {
-                    if (id) {
-                        const index = photosData.findIndex(p => p.id === id);
-                        if (index !== -1) photosData[index] = { ...payload, id };
-                        showToast("相片已更新", "success");
-                    } else {
-                        const newId = Date.now().toString();
-                        photosData.push({ ...payload, id: newId });
-                        showToast("相片已新增", "success");
-                    }
-                    renderGallery();
-                    showLoading(false);
-                }, 500);
-            } else {
-                const action = id ? 'update' : 'create';
-                if (id) payload.id = id;
-
-                try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: {
-                            'Content-Type': 'text/plain;charset=utf-8'
-                        },
-                        body: JSON.stringify({ action: action, data: payload })
-                    });
-                    
-                    const textResult = await response.text();
-                    try {
-                        const result = JSON.parse(textResult);
-                        if (result.status === 'success') {
-                            showToast(id ? "更新成功" : "新增成功", "success");
-                            fetchData(); 
-                        } else {
-                            showToast(result.message || "操作失敗", "error");
-                            showLoading(false);
-                        }
-                    } catch(e) {
-                         console.error("解析 JSON 失敗，收到的內容:", textResult);
-                         showToast("API 回傳格式錯誤 (請確認部署權限)", "error");
-                         showLoading(false);
-                    }
-                } catch (error) {
-                    console.error("Save error:", error);
-                    showToast("網路錯誤，請稍後再試", "error");
-                    showLoading(false);
-                }
-            }
-        }
-
-        function promptDelete(id, type = 'photo') {
+        const promptDelete = (id, type = 'photo') => {
             document.getElementById('deleteId').value = id;
             document.getElementById('deleteType').value = type;
             document.getElementById('deleteModal').classList.remove('hidden');
-        }
+        };
 
-        async function confirmDelete() {
-            const id = document.getElementById('deleteId').value;
-            const type = document.getElementById('deleteType').value;
-            const actionTarget = type === 'photo' ? 'delete' : 'delete_user';
-            
-            closeModal('deleteModal');
-            
-            if (type === 'photo') showLoading(true);
-            else document.getElementById('userLoadingIndicator').classList.remove('hidden');
-
-            if (MOCK_MODE) {
-                setTimeout(() => {
-                    if (type === 'photo') {
-                        photosData = photosData.filter(p => p.id !== id);
-                        renderGallery();
-                        showLoading(false);
-                        showToast("照片已刪除", "success");
-                    } else {
-                        usersData = usersData.filter(u => u.id !== id);
-                        renderUsers();
-                        document.getElementById('userLoadingIndicator').classList.add('hidden');
-                        showToast("帳號已刪除", "success");
-                    }
-                }, 500);
-            } else {
-                try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: actionTarget, id: id })
-                    });
-                    
-                    const textResult = await response.text();
-                    try {
-                        const result = JSON.parse(textResult);
-                        if (result.status === 'success') {
-                            showToast("刪除成功", "success");
-                            if (type === 'photo') fetchData();
-                            else fetchUsers();
-                        } else {
-                            showToast(result.message || "刪除失敗", "error");
-                            if (type === 'photo') showLoading(false);
-                            else document.getElementById('userLoadingIndicator').classList.add('hidden');
-                        }
-                    } catch (e) {
-                         console.error("解析 JSON 失敗，收到的內容:", textResult);
-                         showToast("API 回傳格式錯誤", "error");
-                         showLoading(false);
-                    }
-                } catch (error) {
-                    console.error("Delete error:", error);
-                    showToast("網路錯誤", "error");
-                    showLoading(false);
-                }
-            }
-        }
-
-        // ================= 帳號管理 CRUD =================
-
-        async function fetchUsers() {
-            if (!isAdmin) return;
-            const loader = document.getElementById('userLoadingIndicator');
-            const tbody = document.getElementById('userListBody');
-            
-            loader.classList.remove('hidden');
-            tbody.innerHTML = '';
-
-            if (MOCK_MODE) {
-                setTimeout(() => {
-                    if (usersData.length === 0) usersData = [{id: '1', username: 'admin', password: 'admin123'}];
-                    renderUsers();
-                    loader.classList.add('hidden');
-                }, 500);
-            } else {
-                try {
-                    const response = await fetch(GAS_API_URL + "?action=get_users", { redirect: "follow" });
-                    const textResult = await response.text();
-                    const result = JSON.parse(textResult);
-                    if (result.status === 'success') {
-                        usersData = result.data || [];
-                        renderUsers();
-                    } else {
-                        showToast("讀取帳號失敗", "error");
-                    }
-                } catch (error) {
-                    console.error("Error fetching users:", error);
-                    showToast("網路連線錯誤", "error");
-                } finally {
-                    loader.classList.add('hidden');
-                }
-            }
-        }
-
-        function renderUsers() {
-            const tbody = document.getElementById('userListBody');
-            tbody.innerHTML = '';
-            
-            if (usersData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="2" class="px-4 py-4 text-center text-sm text-gray-500">目前沒有其他帳號紀錄</td></tr>`;
-                return;
-            }
-
-            usersData.forEach(user => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${user.username}</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick="editUser('${user.id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">編輯密碼</button>
-                        <button onclick="promptDelete('${user.id}', 'user')" class="text-red-600 hover:text-red-900">刪除</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function openAccountListModal() {
+        const openAccountListModal = () => {
             document.getElementById('accountListModal').classList.remove('hidden');
-            fetchUsers();
-        }
+        };
 
-        function openAccountEditModal() {
+        const openAccountEditModal = () => {
             document.getElementById('accountForm').reset();
             document.getElementById('editUserId').value = '';
             document.getElementById('accountEditModalTitle').innerText = '新增帳號';
             document.getElementById('accountEditModal').classList.remove('hidden');
-        }
+        };
 
-        function editUser(id) {
+        const editUser = (id) => {
             const user = usersData.find(u => u.id === id);
             if (!user) return;
             
@@ -845,115 +789,19 @@
             document.getElementById('editUsername').value = user.username;
             document.getElementById('editPassword').value = user.password;
             
-            document.getElementById('accountEditModalTitle').innerText = '編輯帳號/密碼';
+            document.getElementById('accountEditModalTitle').innerText = '修改密碼';
             document.getElementById('accountEditModal').classList.remove('hidden');
-        }
-
-        async function saveUser(event) {
-            event.preventDefault();
-            
-            const id = document.getElementById('editUserId').value;
-            const payload = {
-                username: document.getElementById('editUsername').value,
-                password: document.getElementById('editPassword').value
-            };
-
-            document.getElementById('userLoadingIndicator').classList.remove('hidden');
-            closeModal('accountEditModal');
-
-            if (MOCK_MODE) {
-                setTimeout(() => {
-                    if (id) {
-                        const index = usersData.findIndex(u => u.id === id);
-                        if (index !== -1) usersData[index] = { ...payload, id };
-                        showToast("帳號已更新", "success");
-                    } else {
-                        usersData.push({ ...payload, id: Date.now().toString() });
-                        showToast("帳號已新增", "success");
-                    }
-                    renderUsers();
-                    document.getElementById('userLoadingIndicator').classList.add('hidden');
-                }, 500);
-            } else {
-                const action = id ? 'update_user' : 'create_user';
-                if (id) payload.id = id;
-
-                try {
-                    const response = await fetch(GAS_API_URL, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: action, data: payload })
-                    });
-                    
-                    const textResult = await response.text();
-                    const result = JSON.parse(textResult);
-                    if (result.status === 'success') {
-                        showToast(id ? "帳號更新成功" : "帳號新增成功", "success");
-                        fetchUsers(); 
-                    } else {
-                        showToast(result.message || "操作失敗", "error");
-                        document.getElementById('userLoadingIndicator').classList.add('hidden');
-                    }
-                } catch (error) {
-                    console.error("Save user error:", error);
-                    showToast("網路錯誤", "error");
-                    document.getElementById('userLoadingIndicator').classList.add('hidden');
-                }
-            }
-        }
-
-        // ================= 工具函數 =================
-
-        function recordView(id) {
-            // 1. 樂觀 UI 更新：點擊瞬間先在畫面上 +1 (讓使用者感覺反應很快)
-            const photo = photosData.find(p => p.id === id);
-            if (photo) {
-                photo.views = (parseInt(photo.views) || 0) + 1;
-                const viewCountEl = document.getElementById(`view-count-${id}`);
-                if (viewCountEl) {
-                    viewCountEl.innerText = photo.views;
-                }
-            }
-
-            // 2. 在背景發送請求給後端記錄次數，不阻擋換頁
-            if (!MOCK_MODE) {
-                fetch(GAS_API_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'increment_view', id: id })
-                }).catch(e => console.error("Failed to increment view", e));
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        function showLoading(show) {
-            const loader = document.getElementById('loadingIndicator');
-            const grid = document.getElementById('galleryGrid');
-            if (show) {
-                loader.classList.remove('hidden');
-                grid.style.opacity = '0.3';
-            } else {
-                loader.classList.add('hidden');
-                grid.style.opacity = '1';
-            }
-        }
+        };
 
         let toastTimeout;
-        function showToast(message, type = 'success') {
+        const showToast = (message, type = 'success') => {
             const toast = document.getElementById('toast');
             const icon = document.getElementById('toastIcon');
             document.getElementById('toastMessage').innerText = message;
 
-            if (type === 'success') {
-                icon.className = "ph-fill ph-check-circle text-green-400 text-xl mr-3";
-            } else if (type === 'error') {
-                icon.className = "ph-fill ph-warning-circle text-red-400 text-xl mr-3";
-            }
+            icon.className = type === 'success' 
+                ? "ph-fill ph-check-circle text-sky-400 text-2xl mr-3" 
+                : "ph-fill ph-warning-circle text-red-400 text-2xl mr-3";
 
             toast.classList.remove('translate-y-20', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
@@ -963,8 +811,27 @@
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
-        }
+        };
 
+        // 將重要函數綁定到 window 全域，確保 HTML 中的 onclick 可以正確呼叫
+        window.toggleAuth = toggleAuth;
+        window.checkLogin = checkLogin;
+        window.closeModal = closeModal;
+        window.openPhotoModal = openPhotoModal;
+        window.editPhoto = editPhoto;
+        window.savePhoto = savePhoto;
+        window.promptDelete = promptDelete;
+        window.confirmDelete = confirmDelete;
+        window.recordView = recordView;
+        window.openAccountListModal = openAccountListModal;
+        window.openAccountEditModal = openAccountEditModal;
+        window.editUser = editUser;
+        window.saveUser = saveUser;
+        window.handleSearch = handleSearch;
+        window.changePage = changePage;
+
+        // 啟動應用程式
+        initFirebase();
     </script>
 </body>
 </html>
