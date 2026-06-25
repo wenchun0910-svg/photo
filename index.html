@@ -141,17 +141,22 @@
     <!-- ================= 互動視窗 (Modals) ================= -->
 
     <!-- 全文檢視視窗 (新功能) -->
-    <div id="fullDescModal" class="fixed inset-0 bg-slate-900 bg-opacity-60 z-[60] hidden flex items-center justify-center backdrop-blur-sm overflow-y-auto pt-10 pb-10">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full mx-4 my-auto relative">
-            <button onclick="closeModal('fullDescModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors">
+    <div id="fullDescModal" class="fixed inset-0 bg-slate-900 bg-opacity-60 z-[60] hidden flex items-center justify-center backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full flex flex-col max-h-[85vh] relative">
+            <button onclick="closeModal('fullDescModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors z-10">
                 <i class="ph ph-x text-2xl"></i>
             </button>
-            <h2 id="fullDescModalTitle" class="text-2xl font-bold text-slate-800 mb-4 border-b border-slate-100 pb-3"></h2>
-            <!-- 加上 ql-editor 類別讓文字能吃到 Quill 的字體顏色/大小設定 -->
-            <div id="fullDescModalContent" class="ql-editor view-mode rich-text-content text-slate-700 leading-relaxed overflow-y-auto max-h-[60vh] pr-2">
-                <!-- 全文內容 -->
+            <h2 id="fullDescModalTitle" class="text-2xl font-bold text-slate-800 mb-4 border-b border-slate-100 pb-3 shrink-0 pr-8"></h2>
+            
+            <!-- 加入內部獨立捲軸的容器 -->
+            <div class="overflow-y-auto flex-grow pr-3">
+                <!-- 加上 ql-editor 類別讓文字能吃到 Quill 的字體顏色/大小設定 -->
+                <div id="fullDescModalContent" class="ql-editor view-mode rich-text-content text-slate-700 leading-relaxed">
+                    <!-- 全文內容 -->
+                </div>
             </div>
-            <div class="mt-6 flex justify-end border-t border-slate-100 pt-4">
+            
+            <div class="mt-6 flex justify-end border-t border-slate-100 pt-4 shrink-0">
                 <button onclick="closeModal('fullDescModal')" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition-colors">關閉閱讀</button>
             </div>
         </div>
@@ -289,14 +294,16 @@
         </div>
     </div>
 
-    <div id="accountListModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-xl p-6 max-w-lg w-full mx-4 relative">
-            <button onclick="closeModal('accountListModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="ph ph-x text-2xl"></i></button>
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
+    <div id="accountListModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-xl p-6 max-w-lg w-full flex flex-col max-h-[85vh] relative">
+            <button onclick="closeModal('accountListModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 z-10"><i class="ph ph-x text-2xl"></i></button>
+            <div class="flex justify-between items-center mb-4 border-b pb-2 shrink-0 pr-8">
                 <h2 class="text-xl font-bold text-slate-800"><i class="ph-fill ph-users text-blue-600 mr-2"></i>帳號管理</h2>
                 <button onclick="openAccountEditModal()" class="bg-sky-50 text-sky-700 px-3 py-1.5 rounded-lg text-sm border border-sky-200">新增帳號</button>
             </div>
-            <table class="min-w-full divide-y divide-slate-200"><tbody id="userListBody"></tbody></table>
+            <div class="overflow-y-auto flex-grow pr-2">
+                <table class="min-w-full divide-y divide-slate-200"><tbody id="userListBody"></tbody></table>
+            </div>
         </div>
     </div>
 
@@ -358,8 +365,7 @@
                         ]
                     }
                 });
-
-             const firebaseConfig = {
+   const firebaseConfig = {
   apiKey: "AIzaSyCEE72yBbcuTH_OtatNyFRYZXwRYJXPRcM",
   authDomain: "photo-9e02b.firebaseapp.com",
   projectId: "photo-9e02b",
@@ -368,6 +374,7 @@
   appId: "1:220524122796:web:f1fb0ee8388fd4fdb48509"
 };
 
+                
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
